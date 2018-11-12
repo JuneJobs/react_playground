@@ -1,25 +1,25 @@
 # 리엑트 교과서 요약
 
-## 1. React 살펴보기
+# 1. React 살펴보기
 
-### 1.1. React란 무엇인가?
+## 1.1. React란 무엇인가?
 
  React는 UI 컴포넌트 라이브러리 \
  React UI는 매우 독립적이며 특정 관심사에 집중된 기능 블록 \
  React는 템플릿 언어가 없는 순수한 Javascript를 기반으로 **CBA**(Component-based architecture)를 구현, 컴포넌트에 대한 새로운 시각을 창출
 
-### 1.2. React가 해결할 수 있는 문제
+## 1.2. React가 해결할 수 있는 문제
 
 시간에 따라 변화하는 데이터를 다루는 거대한 애플리케이션의 개발\
 React팀은 메모리에서 DOM요소를 생성하는 것은 빠르지만, 실제 DOM으로 렌더링 하는 과정에서 병목이 발생한다는 점을 알게되어, 문제를 해결하는 알고리즘 개발. 이로 인하여 React의 동작속도 및 성능에 이득을 가져옴
 
-### 1.3. React의 장점
+## 1.3. React의 장점
 
 * 단순한 앱개발: 순수 Javascript로 만든 컴포넌트 기반 아키텍쳐. 선언형 스타일, DOM추상화(강력, 개발자 친화적)
 * 빠른 UI
 * 코드량 감소: 수많은 라이브러리와 컴포넌트를 접할 수 있음
 
-#### 1.3.1. 간결성
+### 1.3.1. 간결성
 
 **KISS**(Keep It Simple, Stupid) 원칙: 간결한 시스템이 더 잘 작동함\
 React를 간결하게 만드는 기능들
@@ -80,30 +80,28 @@ React를 간결하게 만드는 기능들
 내부의 인터페이스는 숨기고, 정규화 과정을 거친 합성 매서드와 속성 제공\
 서버측 랜더잉 기능 역시 **SEO**(Search Engine Optimization)와 성능 개선에 유용
 
-#### 1.3.2. 속도와 테스트 용이성
+### 1.3.2. 속도와 테스트 용이성
 
 React의 가상 DOM은 자바스크립트 메모리에만 존재. 데이터를 변경하면 React는 가상 DOM을 비교하여, 랜더링 변경이 필요한 경우에만 실제 DOM에 랜더링 함
 
-
-#### 1.3.3. React의 폭넖은 개발 커뮤니티와 생태계
+### 1.3.3. React의 폭넖은 개발 커뮤니티와 생태계
 
 React는 페이스북과 인스타그램의 막대한 지지를 받고 있음
 
-### 1.4. React의 단점
+## 1.4. React의 단점
 
 모든 기능을 다 갖춘 프레임워크가 아님\
 추가기능들을 개발중임\
 훌륭한 사례나 강의가 부족\
 단방향 데이터 바인딩
 
-### 1.5. Skip
+## 1.5. Skip
 
-### 1.6. 첫번째 React App 만들기
+## 1.6. 첫번째 React App 만들기
 예제 코드 1.1. React 라이브러리 로드와 index.html 기본 골격\
 소스코드를 다운받는 방법은 다양하겠지만, 가장 의존적이지 않은 심플한 방법을 사용\
-react.js는 라이브러리를 불러옴
+react.js는 라이브러리를 불러옴\
 react-dom.js는 DOM라이브러리를 불러옴
-
 
 ```html
     <!DOCTYPE html>
@@ -124,3 +122,45 @@ react-dom.js는 DOM라이브러리를 불러옴
             </body>
         </html>
 ```
+
+React 엘리먼트를 생성하려면 React.createElement(elementName, data, child)를 호출함
+* elementName: HTML 태그명을 문자열로 작성하거나 직접 만든 컴포넌트 클래스 객체를 넘겨 줄 수 있음
+* data: 속성이나 상위 컴포넌트를 받음, null이나 {name:'Azat'}와 같은 형태의 데이터
+* child: 자식 엘리먼트나 태그 내부에 작성하는 텍스트
+
+코드를 다음과 같이 작성 할 수도 있음
+
+```html
+    <div id="content"></div>
+    <script src="script.js"></script>
+```
+
+# 2장 React 첫걸음
+
+## 2.1. 엘리먼트 중첩
+
+동일한 DOM계층에 h1 요소 두 개를 랜더링 해야하는 경우 시각적으로 영향을 끼치지 않는 요소(e.g. \<div>, \<span>, ...)로 두 요소를 감싸는 방법이 있음
+
+createElement()에 전달하는 매개변수의 수는 제한이 없음, 두 번째 매개변수는 자식 엘리먼트가 됨.
+
+* TIP. Chrome에 React 개발자 도구(React Developer Tools) 확장 프로그램을 설치 할 수 있음 [http://mng.bz/V276]
+
+예제코드 2.1 \<h1> 엘리먼트 두 개를 자식으로 가진 \<div> 엘리먼트 생성
+
+* createElement()의 세 번째 매개변수가 문자열이면, 이는 생성하는 엘리먼트의 텍스트 값임
+* 세 번째 또는 그 이후의 매개변수가 문자열이 아니면, 이는 새로 생성하는 엘리먼트의 자식 엘리먼트임
+
+```javascript
+    let h1 = React.createElement('h1', null, 'hello world!')
+    ReactDOM.render(
+        React.createElement('div', null, h1, h1),
+        document.getElementById('content')
+    )
+```
+
+createElement()의 첫 번째 매개변수로 두가지 자료형을 입력 할 수 있음
+* 문자열로 작성한 일반적인 HTML 태그(e.g. 'h1', 'div', 'p') 처럼 화살괄호가 없는 문자열. 이름은 소문자로 작성\
+React 엘리먼트를 랜더링하면 DOM에 \<p> 가 생김
+* React 컴포넌트 클래스 객체. HelloWorld를 예로 들 수 있음. React 컴포넌트 클래스 이름은 대문자로 시작함 
+
+## 2.2. React 컴포넌트 클래스 생성
