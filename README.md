@@ -200,7 +200,7 @@ ReactDOM.render(
         null,
         React.createElement(HelloWorld),
         React.createElement(HelloWorld),
-        React.craeteElement(HelloWorld)
+        React.createElement(HelloWorld)
     ),
     document.getElementById('content');
 )
@@ -333,3 +333,452 @@ ReactDOM.render(
 ```
 
 # 3장 JSX
+
+## 3.1. JSX의 정의와 장점
+
+JSX: 함수 호출과 객체 생성을 위한 문법적 편의를 제공하는 자바스크립트의 확장 (React.createElement() 호출을 반복해야하는 불편을 해소)\
+React 엘리먼트를 생성하면서 Javascript의 모든 기능을 쓸 수 있도록 도와줌\
+장점
+* **DX**(Developer experience)개선: 표현력이 뛰어나 코드를 읽기 쉬움. XML과 문법이 유사하여 중첩된 선언형 구조를 더 잘 나타냄
+* 팀의 생산성 향상: 전문 개발자 외에도 개발 지식이 있는 팀원이 있다면 직접 코드를 수정할 수도 있음
+* 문법 오류와 코드량 감소
+
+다음의 HTML을 생성하는 방법\
+
+```html
+    <div>
+        <HelloWorld/>
+        <br/>
+        <a href="http://webapplog.com">Great Resources</a>
+    </div>
+```
+
+Javascript로 생성
+
+```javascript
+React.createElement(
+    "div",
+    null,
+    React.createElement(HelloWorld, null),
+    React.createElement("br", null),
+    React.createElement(
+        "a",
+        { href: "http://webapplog.com" },
+        "Great JS Resources"
+    )
+)
+```
+
+Babel v6 이용하여 변환
+
+```javascript
+"use strict";
+
+React.createElement(
+    "div",
+    null,
+    " ",
+    React.createElement(HelloWorld, null),
+    " ",
+    React.createElement("br", null),
+    " ",
+    React.createElement(
+        "a",
+        { href: "http://webapplog.com"},
+        "Great JS Resources"
+    ),
+    " "
+)
+```
+
+UI와 Javascript로직에 대한 설명을 한 곳으로 모아, 기존의 분리를 고쳐놓음
+
+JSX의 동작: JSX -> transpiler에서 js로 변환 -> 렌더링
+
+## 3.2. JSX의 이해
+
+### 3.2.1 JSX로 REact 엘리먼트 생성하기
+
+기존의 방식
+
+```javascript
+React.createElement(
+    HelloWorld,
+    {key1: value1, key2: value2, ...},
+    child1, child2, child3, ... , childN
+)
+```
+
+이것을 JSX로 변환하면 다음과 같음
+```html
+    <name key1=value1 key2=value2 ...>
+        <child1/>
+        <child2/>
+        <child3/>
+        ...
+        <childN/>
+    </name>
+```
+
+예제 코드 3.1 Javascript로 작성한 Hello World
+
+```javascript
+ReactDOM.render(
+    React.createElement('h1', null, 'Hello world!'),
+    document.getElementById('content')
+)
+```
+
+예제 코드 3.2 JSX로 작성한 Hello World
+
+```javascript
+ReactDOM.render(
+    <h1>Hello world! </h1>,
+    document.getElementById('content');
+)
+
+//or
+
+let helloWorldReactElement = <h1>Hello world!</h1>
+ReactDOM.render(
+    helloWorldReactElement,
+    document.getElementById('content');
+)
+```
+
+### 3.2.2 React 컴포넌트에 JSX 사용하기
+컴포넌트를 다룰 때도 같은 문법을 사용함. 다른점은 컴포넌트 클래스의 이름이 반드시 대문자로 시작
+
+예제 코드 3.3 JSX를 이용해서 생성한 HelloWorld 클래스
+
+```javascript
+class HelloWorld extends React.Component {
+    render() {
+        return (
+            <div>
+                <h1>1. Hello world!</h1>
+                <h1>2. Hello world!</h1>
+            </div>
+        )
+    }
+}
+ReactDOM.render(
+    <HelloWorld/>,
+    document.getElementById('content');
+)
+```
+
+예제 코드 3.3에서 처럼 return문에 소괄호를 사용하여 묶어줘야함, 혹은 return줄에 \<div>를 바로 선언하여 리턴
+
+### 3.2.3. JSX에서 변수 출력하기
+
+Template literal을 이용한 코드
+
+```javascript
+class DateTimeNow extends React.Component {
+    render() {
+        let dateTimeNow = new Date().toLocaleString()
+        return React.createElement(
+            'span',
+            null,
+            `Current date and time is ${dateTimeNow}`
+        );
+    }
+}
+```
+
+JSX에서 중괄호 표기 기법을 사용하는 방식
+
+* 중괄호만 사용해서 데이터를 바인딩 가능
+* Javascript 표현식이나 코드를 중괄호 안에서 실행 가능
+
+```javascript
+class DateTimeNow extends React.Component {
+    render() {
+        let dateTimeNow = new Date().toLocaleString()
+        return <span> Hello {this.props.userName}, Current date and time is {dateTimeNow}. It's {new Date(Date.now()).toLocaleTimeString()}</span>
+    }
+}
+```
+
+예제 코드 3.4 JSX에서 변수 출력하기
+
+```javascript
+let helloWorldReactElement = <h1>Hello world!</h1>
+class HelloWorld extends React.Component {
+    render() {
+        return <div>
+            {helloWorldReactElement}
+            {helloWorldReactElement}
+        </div>
+    }
+}
+ReactDOM.render(
+    <HelloWorld/>,
+    document.getElementById('content')
+)
+```
+
+### 3.2.4. JSX에서 속성 사용하기
+
+JSX 태그안에 key1=value1 key2=value2... 같은 표기법을 사용하여 HTML 속성과 React 컴포넌트 속성을 정의\
+e.g. 표준 HTML 속성인 href와 사용자 정의 속성 username
+
+```javascript
+ReactDOM.render((
+    <div>
+        <a href="http://reactquickly.co">Time for React?</a>
+        <DateTimeNow username='Azat'/> 
+    </div>,
+    document.getElementById('content')
+));
+```
+
+속성을 동적으로 설정해 사용할 수 있는 방법\
+컴포넌트 속성(this.props)에서 가져올 수 있음\
+e.g. href와 title을 랜더링 하기위해 각각 url, label속성을 사용\
+속성 값은 ProfileLink 생성 시에 정의 됨. 즉 ProfileLink를 생성하는 부모 컴포넌트에서 이 값을 정의
+
+```html
+<profileLink url='/users/azat' label='Profile for Azat'/>
+```
+
+```javascript
+class ProfileLink extends React.Component {
+    render() {
+        return <a href={this.props.url}
+        title={this.props.label}
+        target="_blank">Profile
+        </a>
+    }
+}
+```
+
+React는 HTML요소의 명세에 존재하는 속성 외의 속성은 랜더링 할 때 제외함. 그러나 때로는 아래와 같이 사용자 지정 데이터를 속성으로 추가해야 할 수도 있음
+
+```html
+<li react-is-awesome="true" id="320">React is awesome! </li>
+```
+
+DOM의 HTML 비표준 속성에 데이터를 저장하는 것은 안티패턴 (가급적 추천하지 않음)
+
+JSX를 사용할 떄 데이터를 반드시 HTML 요소의 속성으로 저장해야 하는 경우 다음과 같이 data-* 속성을 사용
+
+```html
+<li data-react-is-awesome={this.reactIsAwesome} id="320">React is awesome! </li>
+```
+
+값이 참일경우 다음과 같이 랜더링 됨
+
+```html
+<li data-react-is-awesome="true" id="320">React is awesome! </li>
+```
+
+data-*속성을 사용하지 않아도 this.props를 통해 입력한 모든 속성에 접근이 가능함
+
+각 속성들을 개별적으로 전달 하면 코드가 많아지고, 개선해야 할 코드가 밀접하게 결합되므로 안티패턴임. 다음과 같이 개별적으로 변수를 넘기지 말것
+
+```javascript
+class HelloWorld extends React.Component {
+    render() {
+        return <h1 title={this.props.title} id= {this.props.id}>
+            Hello {this.props.frameworkName} world!!!
+        </h1>
+    }
+}
+```
+
+생략 부호(...)처럼 생긴 펼침 연산자를 이용 하여 전체 다 넘길 것\
+title = {this.props} id = {this.props.id} 가 ...this.props로 표현 가능
+
+예제 코드 3.5 속성 다루기
+
+```javascript
+class HelloWorld extends React.Component {
+    render() {
+        return <h1 {...this.props}>Hello {this.props.frameworkname} world!!!</h1>
+    }
+}
+
+ReactDOM.render(
+    <div>
+        <HelloWorld
+            id='ember'
+            frameworkname='Ember.js'
+            title='A framework for creating ambitious web applications.'/>,
+        <HelloWorld
+            id='backbone'
+            frameworkname='Backbone.js'
+            title='Backbone.js gives structure to web applications...'/>,
+        <HelloWorld
+            id='angular'
+            frameworkname='Angular.js'
+            title='Superheroic Javascript MVW Framework'/>,
+    </div>,
+    document.getElementById('content')
+)
+
+```
+
+### 3.2.5 React 컴포넌트 메서드 생성하기
+
+React 컴포넌트는 class이기 때문에 애플리케이션을 위한 메서드를 자유롭게 추가 가능. 다음 예제 코드는 헬퍼 메서드로 getUrl()을 추가함
+
+```javascript
+class Content extends React.Component {
+    getUrl() {
+        return 'http://webapplog.com'
+    }
+    render() {
+        ...
+    }
+}
+```
+
+예제 코드 3.6 컴포넌트 메서드를 호출하여 URL 가져오기 (중괄호를 이용하여 클래스 메서드를 호출)
+
+```javascript
+class Content extends React.Component {
+    getUrl() {
+        return 'http://webapplog.com'
+    }
+    render() {
+        return (
+            <div>
+                <p>Your REST API URL is: <a href={this.getUrl()}>{this.getUrl()}</a></p>
+            </div>
+        )
+    }
+}
+```
+
+### 3.2.6 JSX의 if/else 처리
+
+일반적인 Javascript의 코드
+```javascript
+rednder() {
+    if (user.session)
+        return React.createElement('a', {href: '/logout'}, 'Logout')
+    else
+        return React.createElement('a', {href: '/login'}, 'Login')
+}
+```
+
+JSX를 사용한 코드
+```javascript
+render() {
+    if(this.props.user.session)
+        return <a href='/logout'>Logout</a>
+    else
+        return <a href='/login'>Login</a>
+}
+```
+
+변수, 표현식, 삼항 연산자에 대한 Javascript예제 코드
+
+```javascript
+//방법 1 : 변수
+render() {
+    let link
+    if (this.props.user.session)
+        link = React.createElement('a', {href:'/logout'}, 'logout')
+    else
+        link = React.createElement('a', {href:'/login'}, 'Login')
+    return React.createElement('div', null, link);
+}
+
+//방법 2 : 표션식
+render() {
+    let link = (sessionFlag) => {
+        if (sessionFlag)
+            return React.createElement('a', {href:'/logout'}, 'logout')
+        else
+            return React.createElement('a', {href:'/login'}, 'Login')
+        }
+    return React.createElement('div', null, link(this.props.user.session));
+}
+
+//방법 3 : 삼항 연산자
+render() {
+    return React.createElement('div', null, (this.props.user.session)? React.createElement('a', {href:'/logout'}, 'Logout') : React.createElement('a', {href: '/login'}, 'Login')
+    )
+}
+```
+
+JSX를 사용한 나은 문법
+
+```javascript
+//방법 1 : 변수
+render() {
+    let link
+    if (this.props.user.session)
+        link = <a href='/logout'>Logout</a>
+    else
+        link = <a href='/login'>Login</a>
+    return <div>{link}</div>
+}
+
+//방법 2 : 표현식
+render() {
+    let link = (sessionFlag) => {
+        if (sessionFlag)
+            return <a href='/logout'>Logout</a>
+        else
+            return <a href='/login'>Login</a>
+    }
+    return <div>{link(this.props.user.session)}</div>
+}
+
+//방법 3 : 삼항 연산자
+render() {
+    return <div>
+        {(this.props.user.session) ? <a href='/logout'>Logout</a> : <a href='/login'>Login</a>}
+    </div>
+}
+
+//방법 4 : 즉시 실행함수(Immediately Invoked Function Expression)로 선언하여 link와 같은 변수 없이 런타임에서 실행
+render() {
+    return <div>{
+        (sessionFlag) => {
+            if (sessionFlag)
+                return <a href='/logout'>Logout</a>
+            else
+                return <a href='/login'>Login</a>
+        }(this.props.user.session)
+    }</div>
+}
+```
+
+이와 같은 방식을 전체 엘리먼트뿐 아니라 텍스트나 속성 값을 랜더링할 때도 적용할 수 있음. 예를 들어 URL과 텍스트를 확대해서 엘리먼트를 생성하기 위한 중복을 피할 수 있음\
+가장 간결한 스타일
+
+```javascript
+render() {
+    let sessionFlag = this.props.user.session
+    return <div>
+        <a href={(sessionFlag)?'/logout':'/login')}>{(sessionFlag)?'Logout':'Login'}</a>
+    </div>
+}
+```
+
+요약하여 JSX에서 if/else 조건을 구현할 때는 다음과 같은 방법을 사용
+
+* return 문 이전에 JSX외부에서 변수를 선언한 후 JSX 내부에서 {}를 사용하여 출력함
+* return 문 이전에 JSX 외부에서 갚을 반환하는 함수 표현식을 선언한 후 JSX내부의 {}에서 실행함
+* 삼항 연산자를 사용
+* JSX 내부에서 즉시실행함수를 사용
+
+가장 추천하는 스타일은 다음과 같음
+```javascript
+class MyReactComponent extends React.Component {
+    render() {
+        //JSX를 사용하지 않는 영역: 변수, if/else문, 삼항 연산자를 사용
+        return (
+            // JSX: 삼항 연산자 또는 함수 실행결과를 {}로 표시
+        )
+    }
+}
+```
+
+### 3.2.7 JSX의 주석 작성 방법
+{/**/}, /* 이 주석은\n 여러줄\n */
