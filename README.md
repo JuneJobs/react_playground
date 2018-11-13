@@ -159,8 +159,177 @@ createElement()에 전달하는 매개변수의 수는 제한이 없음, 두 번
 ```
 
 createElement()의 첫 번째 매개변수로 두가지 자료형을 입력 할 수 있음
+
 * 문자열로 작성한 일반적인 HTML 태그(e.g. 'h1', 'div', 'p') 처럼 화살괄호가 없는 문자열. 이름은 소문자로 작성\
 React 엘리먼트를 랜더링하면 DOM에 \<p> 가 생김
 * React 컴포넌트 클래스 객체. HelloWorld를 예로 들 수 있음. React 컴포넌트 클래스 이름은 대문자로 시작함 
 
 ## 2.2. React 컴포넌트 클래스 생성
+
+React 앨리먼트를 중첩하고 나면 엘리먼트가 굉장히 많다는 문제점을 발견. 이때 컴포넌트 기반 아키텍쳐를 활용\
+Component class(component)를 이용하면 기능을 느슨하게 결합된 부분으로 분리하여 코드 재사용이 가능
+
+ES6 문법을 이용하면 React.Component 클래스를 상속받아서 React 컴포넌트 클래스를 생성가능\
+e.g. class CHILD extends PARENT, class HelloWorld extends React.Component
+
+새로운 컴포넌트 클래스를 구현 할 때는 render()메서드를 반드시 작성해야 함. 이 메서드는 다른 사용자 정의 컴포넌트 클래스나 HTML 태그로 만든 React 엘리먼트를 반환
+
+예제코드 2.3 React 컴포넌트 클래스 생성하고 렌더링하기
+
+```javascript
+let h1 = React.createElement('h1', null, 'Hello world!')
+class HelloWorld extends React.Component {    //React component class 정의 (class 이름은 대문자로 시작)
+    render() {  //엘리먼트 하나를 반환하는 함수인 render()메서드를 생성
+        return React.createElement('div', null, h1, h1);    //return 문에는 React 엘리먼트를 반환하도록 구현하여 React클래스가 render()를 실행하면 두 개의 <h1>엘리먼트를 감싼 <div> 엘리먼트를 받을 수 있음
+    }
+}
+
+ReactDOM.render(    //React엘리머느를 ID가 content인 실제 DOM에 넣어줌
+    React.createElement(HelloWorld, null),  //첫 번째 인자로 Helloworld클래스를 전달하여 앨리먼트 생성
+    document.getElementById('content')
+)
+
+```
+
+위의 예재를 활용하여 동일한 h1을 많이 노출하는 경우
+
+```javascript
+ReactDOM.render(
+    React.createElement(
+        'div',
+        null,
+        React.createElement(HelloWorld),
+        React.createElement(HelloWorld),
+        React.craeteElement(HelloWorld)
+    ),
+    document.getElementById('content');
+)
+```
+
+## 2.3. React 속성 사용하기
+
+React 컴포넌트의 properties(엘리먼트 내의 변경할 수 없는 값)는 React선언형 스타일의 기초\
+Properties를 통해 React엘리먼트를 다양하게 표현 가능\
+
+e.g. React.createElement('a', {href:'http://node.university'});
+
+Properties는 컴포넌트 내부에서 변경 할 수 없음. 부모 컴포넌트는 자식의 생성시점에 속성을 할당. 자식 엘리먼트(다른 엘리먼트 안에 중첩된 엘리먼트)는 속성을 수정하지 않아야 함.
+
+e.g. <TAG_NAME PROPERTY_NAME=VALUE/>
+
+React의 속성은 HTML속성을 작성하는 것과 비슷함. React속성을 작성하는 목적은 HTML속성을 작성 혹은 코드에서 원하는 대로 사용하기 위함.
+* 일반적인 HTML 요소인 속성: href, title, style, class
+* React 컴포넌트 클래스의 자바스크립트 코드에서 this.props의 값. e.g. this.props.PROPERTY_NAME(PROPERTY_NAME)을 임의의 값으로 지정 가능. 이때 입력한 속성의 이름을 사용하여 this.props.PROPERTY_NAME으로 접근이 가능
+
+표준 HTML속성과 일치하지 않는 경우 HTML에 렌더링 하지는 않지만 위의 방법으로 접근이 가능함. 이 방법을 이요하면 같은 클래스의 서로 다른 인스턴스에 각각 다른 데이터를 넘겨 줄 수 있음(컴포넌트의 재 사용)
+
+다음과 같이 속성을 이용하여 값에 따라 엘리먼트를 다른 모습으로 렌더링 할 수 있음
+
+```javascript
+render() {
+    if (this.props.heading) return <h1>Hello</h1>
+    else return <p>Hello</p>
+}
+```
+
+HelloWorld 제목인 \<h1>태그에 다음과 같이 세 가지 속성을 추가
+
+* id: HTML 표준 속성 id와 일치하고, React가 자동으로 랜더링 함
+* frameworkname: \<h1>의 표준 속성이 아니지만, 제목 텍스트로 표시할 때 사용하는 값
+* title: HTML 표준 속성인 title과 일치, React가 자동으로 랜더링 함
+
+```javascript
+ReactDOM.render(
+    React.createElement(
+        'div',
+        null,
+        React.createElement(HelloWorld, {
+            id: 'ember',
+            frameworkname: 'Ember.js',
+            title: 'A framework for creating ambitious web applications.'
+        }),
+        React.createElement(HelloWorld, {
+            id: 'backbone',
+            frameworkname: 'backbone.js',
+            title: 'Backbone.js gives structure to web applications...'
+        }),
+        React.createElement(HelloWorld, {
+            id: 'Angular',
+            frameworkname: 'Angular.js',
+            title: 'Superheroic Javascript MVW Framework.'
+        }),
+        document.getElementById('content')
+    );
+);
+```
+
+다음과 같이 컴포넌트의 render()매서드 내에서 this.props 객체에 접근하면 createElement()의 두 번째 매개변수로 전달한 객체에 접근 할 수 있음\
+e.g. {id: 'ember'...}
+
+예제코드 2.4 render() 메서드에서 frameworkName속성 사용하기
+
+```javascript
+class HelloWord extends React.Component {
+    render() {
+        return React.createElement(
+            'h1',
+            null,
+            'Hello' + this.props.frameworkName + 'world!!!'
+        );
+    }
+}
+```
+
+예제코드 2.5 컴포넌트의 모든 속성을 \<h1>으로 전달할 수 있음
+
+```javascript
+class HelloWorld extends React.Component {
+    render() {
+        return React.createElement(
+            'h1',
+            this.props,
+            'Hello' + this.props.frameworkNAme + 'world!!!'
+        );
+    }
+}
+```
+
+전체 예제 코드는 다음과 같음
+예제코드 2.6 엘리먼트 생성 시 속성 전달
+
+```javascript
+class HelloWorld extends React.Component {
+    render() {
+        return React.createElement(
+            'h1',
+            this.props,
+            'Hello' + this.props.frameworkname + 'world!!'
+        )
+    }
+}
+
+ReactDOM.render(
+    React.createElement(
+        'div',
+        null,
+        React.createElement(HelloWorld, {
+            id: 'ember',
+            frameworkname: 'ember.js',
+            title: 'A framework for creating ambitious web applications.'
+        }),
+        React.createElement(HelloWorld, {
+            id: 'backbone',
+            frameworkname: 'backbone.js',
+            title: 'Backbone.js gives structure to web applications...'
+        }),
+        React.createElement(HelloWorld, {
+            id: 'Angular',
+            frameworkname: 'Angular.js',
+            title: 'Superheroic Javascript MVW Framework.'
+        }),
+        document.getElementById('content')
+    )
+)
+```
+
+# 3장 JSX
