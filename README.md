@@ -769,6 +769,7 @@ render() {
 * JSX 내부에서 즉시실행함수를 사용
 
 가장 추천하는 스타일은 다음과 같음
+
 ```javascript
 class MyReactComponent extends React.Component {
     render() {
@@ -781,4 +782,6 @@ class MyReactComponent extends React.Component {
 ```
 
 ### 3.2.7 JSX의 주석 작성 방법
+
 {/**/}, /* 이 주석은\n 여러줄\n */
+
