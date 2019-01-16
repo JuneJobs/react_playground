@@ -288,7 +288,7 @@ class HelloWorld extends React.Component {
         return React.createElement(
             'h1',
             this.props,
-            'Hello' + this.props.frameworkNAme + 'world!!!'
+            'Hello' + this.props.frameworkName + 'world!!!'
         );
     }
 }
