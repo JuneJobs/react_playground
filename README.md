@@ -343,7 +343,7 @@ React 엘리먼트를 생성하면서 Javascript의 모든 기능을 쓸 수 있
 * 팀의 생산성 향상: 전문 개발자 외에도 개발 지식이 있는 팀원이 있다면 직접 코드를 수정할 수도 있음
 * 문법 오류와 코드량 감소
 
-다음의 HTML을 생성하는 방법\
+다음의 HTML을 생성하는 방법
 
 ```html
     <div>
@@ -397,7 +397,7 @@ JSX의 동작: JSX -> transpiler에서 js로 변환 -> 렌더링
 
 ## 3.2. JSX의 이해
 
-### 3.2.1 JSX로 REact 엘리먼트 생성하기
+### 3.2.1 JSX로 React 엘리먼트 생성하기
 
 기존의 방식
 
@@ -472,7 +472,8 @@ ReactDOM.render(
 
 ### 3.2.3. JSX에서 변수 출력하기
 
-Template literal을 이용한 코드
+Template literal을 이용한 코드\
+**Template literal**: 자바스크립트에서 문자열을 입력하는 방식으로 백틱(back-tic, `)을 사용
 
 ```javascript
 class DateTimeNow extends React.Component {
@@ -785,3 +786,67 @@ class MyReactComponent extends React.Component {
 
 {/**/}, /* 이 주석은\n 여러줄\n */
 
+## 3.3. Babel을 이용한 JSX 트랜스파일러 설정하기
+
+JSX를 실행시 일반적인 자바스크립트코드로 변환해야함. 이 과정을 compilation과 transformation을 거친다는 의미에서 transpilation이라고 함.\
+Transpilation tools
+
+* Balrbel 명령줄 인터페이스 도구: balbel-cli 패키지가 제공하는 트렌스파일레이션 명령. 설정이적고 시작이 간편함
+* Node.js 또는 브라우저 자바스크립트로 작성한 babel-core패키지를 이용하여 JSX를 변환하는방식. 저수준 제어가 가능하고, 빌드 도구와 빌드 도구의 플러그인 상의 추상화나 의존성 제거가능 
+* 빌드도구: Grunt, Gulp, Webpack같은 도구에서 Babel을 플러그인으로 사용가능 (가장 인기가 좋은 방법)\
+
+## 3.4. React와 JSX의 까다로운 부분
+
+### 3.4.1 특수문자
+
+### 3.4.2 data- 속성
+
+React는 HTML 비표준 속성을 컴포넌트에 추가하면 무시함. 사용자 정의 속성을 렌더링해야 한다면 속성의 접두사로 data-를 다음과 같이 사용함.\
+
+```javascript
+<li data-obejct-id="097F4E4F">...</>
+```
+
+### 3.4.3 스타일 속성
+
+JSX의 스타일(style) 속성은 문자열 대신 자바스크립트 객체를 전달하고, CSS 속성은 카멜 표기법으로 작성.\
+자바스크립트 객체를 사용해 React는 뷰를 더 빠르게 변경할 수 있음.
+
+```javascript
+let smallFontSize = {fontSize: '10pt'}
+<input style={smallFontSize}>
+
+<input style={{fontSize: '30pt'}}>
+
+<span style= {{borderColor: 'red',
+    borderWidth:1,
+    borderStyle: 'solid'}}>Hey</span>
+
+<span stype={{border:'1 px red solid'}}>Hey</span>
+```
+
+### 3.4.4 class와 for 속성
+
+React와 JSX는 class와 for를 제외하면 표준 HTML 속성을 모두 사용할 수 있음.\
+class ~> className\
+for ~> htmlFor\
+
+```javascript
+<div className="hidden">...</div>
+
+<div>
+    <input type="radio" name={this.props.name} id={this.props.id}/>
+    <label htmlFor={this.props.id}>
+        {this.props.label}
+    </label>
+</div>
+```
+
+### 3.4.5 불 값을 속성 값으로 사용하는 경우
+
+끝으로 disabled, required, checked, autofocus, readOnly같은 일부 속성은 폼 요소에만 사용.\
+주의사항: 속성값을 {}안에 반드시 자바스크립트 식으로 작성해야함
+
+```javascript
+<input disabled={false}/>
+```
