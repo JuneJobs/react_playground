@@ -850,3 +850,269 @@ for ~> htmlFor\
 ```javascript
 <input disabled={false}/>
 ```
+
+# 4. React 컴포넌트의 상태 겍체
+
+React 컴포넌트의 상태 객체에 대한 이해, 상태객체를 다루는 방법, 상태 객체와 속성(props)의 비교, 상태저장 컴포넌트와 상태비저장 컴포넌트에 대해 알아봄.
+
+## 4.1.React 컴포넌트의 상태란?
+
+React의 상태는 컴포넌트의 변경 가능한 데이터 저장소. 변경이 가능하다는 것은 상태 값을 변경 할 수 있다는것. 속성과 상태는 둘 다 뷰를 갱신하기 위해 사용할 수 있지만, 서로 목적이 다름.
+상태 객체에 접근할 때는 이름을 이용. 이름은 this.state 객체의 속성. 본질적으로 상태를 변경하면 뷰에서 변경한 상테와 관련된 부분만 갱신됨(HTML 요소 또는 한 요소의 속성만 갱신)
+
+## 4.2 상태 객체 다루기
+
+상태 객체를 다루려면 값에 접근하고 갱산하는 방법과 초기 상태 설정 방법을 알아야 함.
+
+### 4.2.1. 상태 객체에 접근하기
+
+상태 객체는 컴포넌트의 멤버 변수로 this를 통해 접근할 수 있음. 예를들어 this.state.name 같은 방식으로 접근함. render()에서 this.state를 랜더링할 수 있음.
+
+### 4.2.2. 초기 상태 설정하기
+
+render()에서 상태 데이터를 사용하려면 상태를 초기화 해야함. React.Component를 사용하는 ES6 클래스의 constructor에서 this.state를 선언함. 반드시 super()속성을 전달하여 실행해야 부모 클래스의(React.Component)를 사용할 수 있음.
+
+```javascript
+class MyFancyComponent extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {...}
+    }
+    render() {
+        ...
+    }
+}
+```
+
+예제 코드 4.2 시계 컴포넌트 클래스의 생성자
+
+```javascript
+class Clock extends React.Component{
+    constructor(props) {
+        super(props)
+        this.state = {currentTime: (new Date()).toLocaleString('en')}
+    }
+    ...
+}
+```
+
+상태 객체는 다음과 같이 배열이나 다른 객체를 중첩해서 가질 수 있음.
+
+```javascript
+class Content extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            githubName: 'azat-co',
+            books: [
+                'pro express.js',
+                'practical node.js',
+                'rapid prototyping with js'
+            ]
+        }
+        render() {
+            ...
+        }
+    }
+}
+```
+
+constructor() 메서드는 앞의 컴포넌트 클래스에서 React 엘리먼트가 생성되는 시점에 한 번만 호출됨. 이렇게 해서 constructor()메서드 내에서 한 번만 this.state로 직접 상태를 선언할 수 있음. 이후의 상태를 변경하려면 직접 접근하지 말 것.
+
+### 4.2.3. 상태 갱신하기
+
+클래스 매서드인 this.setState(data, callback)를 사용하면 상태를 변경가능. 이 메서드를 실행하면 React는 전달하는 data를 현재 상태에 병합하고 render()를 호출 한 후 callback을 실행.
+
+setState()는 비동기로 작동하기 때문에, 새로운 상태에 의존하는 경우, 콜백함수를 사용해야 새로운 상태가 적용된 후에 필요한 작업을 수행할 수 있음.
+
+예제 코드 4.3 상태를 이용한 Clock 컴포넌트 구현
+```javascript
+class Clock extends React.Component {
+    constructor(props) {
+        super(props)
+        this.launchClock()
+        this.state = {
+            currentTime: (new Date()).toLocaleString('en')
+        }
+    }
+    lunchClock() {
+        setInterval(()=> {
+            console.log('Updating time...')
+            this.setState({
+                currentTime: (new Date()).toLocaleString('en')
+            })
+        }, 1000)
+    }
+    render() {
+        console.log('Rendering Clock...')
+        return <div>{this.state.currentTime}</div>
+    }
+}
+```
+
+일반적으로 setState()는 이벤트 핸들러나 데이터 수신 또는 갱신을 처리하는 콜백함수에서 호출 됨. setState()로 전달하는 상태는 상태 객체의 일부분만 갱신함. 예를들어 객체에 세 항목이 있을 때 하나를 변경하면, 나머지 둘은 그대로 유지되어 바뀌지 않음.
+
+```javascript
+constructor(props) {
+    super(props)
+    this.state = {
+        userName:'Jack',
+        userEmail:'j.jobs1028@gmail.com',
+        userId: 'JuneJobs'
+    }
+}
+updateValues() {
+    this.setState({userName: 'Junhee'})
+}
+```
+
+setState가 render()를 호출한다는 사실도 알고있어야 함.
+
+## 4.3. 상태 객체와 속성
+
+상태 객체와 속성은 모두 클래스의 멤버이며, 각각 this.state와 this.props를 말함. 상태 객체는 변경이가능하고 속성은 불가능
+속성은 부모 컴포넌트에서 전달하지만, 상태는 해당 컴포넌트 자체에서 정의함. 속성의 수정은 부모 컴포넌트에서만 가능. 그러므로 속성은 뷰 생성 시에 정해지고 정적인 상태로 유지됨.
+
+## 4.4. 상태비저장 컴포넌트
+
+Stateless component는 상태 객체가 없으며, 컴포넌트 매서드 또는 다른 React의 라이프사이클 이벤트 또는 메서드를 갖지 않는다. 상태비저장 컴포넌트의 목적은 오직 뷰를 랜더링하는것임. 속성을 받아 처리하는일만 함. 상태비저장 컴포는트를 많이, 상태 저장 컴포넌트를 더 적게 사용할수록 좋음
+
+예제 코드 4.4 상태비저장 Hello World
+
+```javascript
+class HelloWorld extends React.Component {
+    render() {
+        return <h1 {...this.props}>Hello {this.props.frameworkName} world!!!</h1>
+    }
+}
+```
+
+# 5. React 컴포넌트 라이프사이클 이벤트
+
+React 컴포넌트 라이프사이클 이벤트 한눈에 살펴보기, 이벤트 카테고리의 이해, 이벤트 정의, 마운팅, 갱신, 언마운팅 이벤트
+화면 너비에 따라 달라지는 컴포넌트를 만드는 것 처럼 컴포넌트를 세밀하게 제어하기 위한 방법으로 컴포넌트 인스턴스 생성 전에 팰요한 로직을 구현한 후 새로운 속성을 제공해서 인스턴스를 재생성하는 방법을 생각해볼 수 있음. 이러한 경우 component lifecycle events를 사용하는 것이 좋음. 마운팅 이벤트를 이용해서 컴포넌트에 필요한 로직을 주입할 수 잇음. 그 외에도 다른 이벤트를 이용하면 뷰가 다시 렌더링하는 것을 결정하는 특별한 로직을 제공해서 좀 더 똑똑한 컴포넌트를 만들 수도 있음.
+
+## 5.1. React 컴포넌트 라이프사이클 이벤트 한눈에 살펴보기
+
+React는 라이프사이클 이벤트를 기반으로 컴포넌트의 동작을 제어하고 사용자 정의를 할 수 있음. 라이프사이클 이벤트는 다음과 같음.
+
+* Mounting Event: React엘리먼트를 DOM노드에 추가할 때 발생
+* Updating Event: 속성이나 상태가 변경되어 React 엘리먼트를 갱신할 때 발생
+* Unmounting Event: React 엘리먼트를 DOM에서 제거할 때 발생
+
+어떤 이벤트는 한 번만 실행되기도 하고, 어떤 이벤트는 계속해서 실행됨. 
+
+## 5.2. 이벤트 분류
+
+React는 여러 가지 컴포넌트 이벤트를 세 가지 유형으로 정의함. 각 분류에 따라 에벤트가 발생되는 횟수가 다름.
+
+* constructor(): 엘리먼트를 생성하여 기본속성과 상태를 설정할 때 실행된다.
+* 마운팅
+    * componentWillMount(): DOM에 삽입하기 전에 실행.
+    * componentDidMount(): DOM에 삽입되어 렌더링이 완료된 후 실행됨.
+* 갱신
+    * componentWillReceiveProps(nextProps): 컴포넌트가 속성을 받기 직전에 실행됨.
+    * shouldComponentUpdate(nextProps, nextState): 컴포넌트가 갱신되는 조건을 정의해서 재랜더링을 최적화할 수 있음. 불값을 반환
+    * componentWillUpdate(nextProps, nextState): 컴포넌트가 갱신되기 직전에 실행됨.
+    * componentDidUpdate(prevProps, prevState): 컴포넌트가 갱신된 후에 실행
+* 언마운팅
+    * componentWillUnmount(): 컴포넌트를 DOM에서 제거하기 전에 실행되며, 구독한 이벤트를 제거하거나 다른 정리 작업을 수행할 수 있음.
+
+## 5.3. 이벤트 구현
+
+라이프사이클 이벤트를 구현하려면 클래스에 메서드를 정의해야함. React는 이벤트 이름에 해당하는 메서드가 있는지 확인. React가 메서드를 찾으면 헤당 메서드를 실행.
+
+React는 특정 매서드가 정의되어 있다면 컴포넌트의 실행주기 중에 이 메서드를 호출함. \
+DOM과 연관된 함수가 실행되는 과정을 보여주는 예제
+
+```javascript
+class Content extends React.Component {
+    componentWillMount() {
+        console.log(ReactDOM.findDOMNode(this)) //DOM노드가 0으로 확인됨.
+    }
+    componentDidMount() {
+        console.dir(ReactDOM.findDOMNode(this)) //DOM 노드가 <div>로 확인됨.
+    }
+    render() {
+        return {
+
+        }
+    }
+}
+```
+
+5.4. 모든 이벤트 실행
+
+예제 코드 5.1 Logger 컴포넌트의 렌더링과 세 번의 갱신 실행
+```javascript 
+class Content extends React.Component {
+    constructor(props) {
+        super(props)
+        this.launchClock()
+        this.state = {
+            counter: 0,
+            currentTime: (new Date()).toLocaleString()
+        }
+    }
+    launchClock() {
+        setInterval(() => {
+            this.setState({
+                counter: ++this.state.counter,
+                currentTime: (new Date()).toLocaleString()
+            })
+        }, 1000)
+    }
+    render () {
+        if (this.state.counter > 2) return
+        return <Logger time="{this.state.currentTime}"></Logger>
+    }
+}
+```
+
+예제 코드 5.2 컴포넌트 라이프사이클 이벤트 관찰
+
+```javascript
+class Logger extends React.Component {
+    constructor(props) {
+        super(props)
+        console.log("constructor")
+    }
+    componentWillMount() {
+        console.log('componentWillMount 실행')
+    }
+    componentDidMount(e) {
+        console.log('componentDidMount 실행')
+        console.log('DOM node:', ReactDOM.findDOMNode(this))
+    }
+    componentWillReceiveProps(newProps) {
+        console.log('componentWillReceiveProps 실행')
+        console.log('새로운 속성:', newProps)
+    }
+    shouldComponentUpdate(newProps, newState) {
+        console.log('shouldComponentUpdate 실행')
+        console.log('새로운 속성:', newProps)
+        console.log('새로운 상태:', newState)
+        return true
+    }
+    componentWillUpdate(newProps, newState) {
+        console.log('componentWillUpdate 실행')
+        console.log('새로운 속성:', newProps)
+        console.log('새로운 상태')
+    }
+    componentDidUpdate(oldProps, oldState) {
+        console.log('componentDidUpdate, 실행')
+        console.log('이전 속성: ', oldProps)
+        console.log('이전 상태: ', oldState)
+    }
+    conponentWillUnmount() {
+        console.log('componentWillUnmount')
+    }
+    render() {
+        return(
+            <div>{this.props.time}</div>
+        )
+    }
+}
+```
+
+이 웹페이지를 실행하면 Logger컴포넌트의 함수와 라이프사이클 이벤트가 콘솔에 로그를 확인할 수 있다.
